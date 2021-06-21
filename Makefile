@@ -23,6 +23,9 @@ LD_FLAGS                    := "-w -X github.com/gardener/$(EXTENSION_PREFIX)-$(
 LEADER_ELECTION             := false
 IGNORE_OPERATION_ANNOTATION := true
 
+EFFECTIVE_VERSION           := $(VERSION)-$(shell git rev-parse HEAD)
+CNUDIE_IMAGE_PREFIX                := $(shell "$(HACK_DIR)/get-image-registry.sh")
+
 #########################################
 # Rules for local development scenarios #
 #########################################
@@ -112,3 +115,22 @@ verify: check format test
 
 .PHONY: verify-extended
 verify-extended: install-requirements check-generate check format test-cov test-cov-clean
+
+#####################################################################
+# Rules for cnudie component descriptors dev setup #
+#####################################################################
+
+.PHONY: cnudie-docker-images
+cnudie-docker-images:
+	@echo "Building docker images for version $(EFFECTIVE_VERSION) for registry $(CNUDIE_IMAGE_PREFIX)"
+	@docker build -t $(CNUDIE_IMAGE_PREFIX)/$(NAME):$(EFFECTIVE_VERSION) -f Dockerfile .
+
+.PHONY: cnudie-docker-push
+cnudie-docker-push:
+	@echo "Pushing docker images for version $(EFFECTIVE_VERSION) to registry $(IMAGE_PREFIX)"
+	@if ! docker images $(CNUDIE_IMAGE_PREFIX)/$(NAME) | awk '{ print $$2 }' | grep -q -F $(EFFECTIVE_VERSION); then echo "$(CNUDIE_IMAGE_PREFIX)/$(NAME) version $(EFFECTIVE_VERSION) is not yet built. Please run 'make cnudie-docker-images'"; false; fi
+	@docker push $(CNUDIE_IMAGE_PREFIX)/$(NAME):$(EFFECTIVE_VERSION)
+
+.PHONY: cnudie-cd-build-push
+cnudie-cd-build-push:
+	@EFFECTIVE_VERSION=$(EFFECTIVE_VERSION) ./hack/generate-cd.sh
