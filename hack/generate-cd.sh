@@ -9,6 +9,7 @@ set -e
 SOURCE_PATH="$(dirname $0)/.."
 IMAGE_REGISTRY="$(${SOURCE_PATH}/hack/get-image-registry.sh)"
 CD_REGISTRY="$(${SOURCE_PATH}/hack/get-cd-registry.sh)"
+COMPONENT_NAME="$(${SOURCE_PATH}/hack/get-cd-component-name.sh)"
 
 CA_PATH="$(mktemp -d)"
 TMP_COMPONENT_DESCRIPTOR_PATH="${CA_PATH}/component-descriptor.yaml"
@@ -32,7 +33,7 @@ fi
 echo "> Generate Component Descriptor ${EFFECTIVE_VERSION}"
 echo "> Creating base definition"
 component-cli ca create "${CA_PATH}" \
-    --component-name=github.com/gardener/gardener-extension-networking-calico \
+    --component-name=${COMPONENT_NAME} \
     --component-version=${EFFECTIVE_VERSION} \
     --repo-ctx=${CD_REGISTRY}
 
