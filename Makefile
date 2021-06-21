@@ -123,7 +123,7 @@ verify-extended: install-requirements check-generate check format test-cov test-
 .PHONY: cnudie-docker-images
 cnudie-docker-images:
 	@echo "Building docker images for version $(EFFECTIVE_VERSION) for registry $(CNUDIE_IMAGE_REGISTRY)"
-	@docker build -t $(IMAGE_PREFIX)/$(NAME):$(EFFECTIVE_VERSION) -t $(IMAGE_PREFIX)/$(NAME):$(EFFECTIVE_VERSION) -f Dockerfile -m 6g --target $(EXTENSION_PREFIX)-$(NAME) .
+	@docker build -t $(CNUDIE_IMAGE_REGISTRY)/$(NAME):$(EFFECTIVE_VERSION) -f Dockerfile .
 
 .PHONY: cnudie-docker-push
 cnudie-docker-push:
